@@ -72,11 +72,11 @@ class TrelloCard(Plugin):
         message += 'Message: %s\n' % event.message
         message += '\n%s\n' % link
 
-        self.make_card(title, message, project)
+        self.make_card(title, message, event)
 
-    def make_card(self, title, message, project):
+    def make_card(self, title, message, event):
 
-        trello = TrelloApi(self.get_option('key', project),
-                            self.get_option('token', project))
+        trello = TrelloApi(self.get_option('key', event.project),
+                            self.get_option('token', event.project))
         trello.cards.new(name=title, desc=message,
-                        idList=self.get_option('board_list', project))
+                        idList=self.get_option('board_list', event.project))
