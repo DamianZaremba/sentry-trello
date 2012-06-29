@@ -37,14 +37,14 @@ class TrelloSettingsForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(TrelloSettingsForm, self).clean()
-        if not key:
-            self.errors[key] = "You must specify a key"
+        if not self.key:
+            self.errors[self.key] = "You must specify a key"
 
-        if not token:
-            self.errors[token] = "You must specify a token"
+        if not self.token:
+            self.errors[self.token] = "You must specify a token"
 
-        if not board_list:
-            self.errors[key] = "You must specify a board list ID"
+        if not self.board_list:
+            self.errors[self.board_list] = "You must specify a board list ID"
 
         return cleaned_data
 
