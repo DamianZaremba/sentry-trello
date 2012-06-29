@@ -35,19 +35,6 @@ class TrelloSettingsForm(forms.Form):
     token = forms.CharField()
     board_list = forms.CharField()
 
-    def clean(self):
-        cleaned_data = super(TrelloSettingsForm, self).clean()
-        if not self.key:
-            self.errors[self.key] = "You must specify a key"
-
-        if not self.token:
-            self.errors[self.token] = "You must specify a token"
-
-        if not self.board_list:
-            self.errors[self.board_list] = "You must specify a board list ID"
-
-        return cleaned_data
-
 class TrelloCard(Plugin):
     author = 'Damian Zaremba'
     author_url = 'http://damianzaremba.co.uk'
