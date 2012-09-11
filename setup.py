@@ -27,7 +27,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sentry-trello',
-    version='1.0.3',
+    version='1.0.4',
     author='Damian Zaremba',
     author_email='damian@damianzaremba.co.uk',
     url='https://github.com/DamianZaremba/sentry-trello',

@@ -31,14 +31,18 @@ from trello import TrelloApi
 import sentry_trello
 
 class TrelloSettingsForm(forms.Form):
-    key = forms.CharField()
-    token = forms.CharField()
-    board_list = forms.CharField()
+    key = forms.CharField(help_text='Trello API Key')
+    token = forms.CharField(help_text='Trello API Token')
+    board_list = forms.CharField(help_text='ID of the list to add a card to')
 
 class TrelloCard(Plugin):
     author = 'Damian Zaremba'
     author_url = 'http://damianzaremba.co.uk'
     title = 'Trello'
+    resource_links = [
+        ('Bug Tracker', 'https://github.com/damianzaremba/sentry-trello/issues'),
+        ('Source', 'https://github.com/damianzaremba/sentry-trello'),
+    ]
 
     conf_title = 'Trello'
     conf_key = 'trello'
