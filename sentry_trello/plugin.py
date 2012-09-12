@@ -39,6 +39,13 @@ class TrelloCard(Plugin):
     author = 'Damian Zaremba'
     author_url = 'http://damianzaremba.co.uk'
     title = 'Trello'
+    plugin_description = 'Create Trello cards on exceptions.\n\n' + \
+		'Get the API key from https://trello.com/1/appKey/generate\n' + \
+		'Note: The secret is *not* the token.\n\n' + \
+		'Get the token from https://trello.com/1/authorize?' + \
+		'response_type=token&key=YOUR_API_KEY_HERE&scope=read,write' + \
+		'&expiration=never'
+
     resource_links = [
         ('Bug Tracker', 'https://github.com/damianzaremba/sentry-trello/issues'),
         ('Source', 'https://github.com/damianzaremba/sentry-trello'),
