@@ -7,3 +7,7 @@ Installation
 sentry-trello is available via PyPI, the python package index.
 
 To install simple type `pip install sentry-trello`.
+
+TODO
+----
+* Make the auth/board setup less clunky.
