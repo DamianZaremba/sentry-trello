@@ -40,11 +40,21 @@ class TrelloCard(Plugin):
     author_url = 'http://damianzaremba.co.uk'
     title = 'Trello'
     plugin_description = 'Create Trello cards on exceptions.\n\n' + \
+		\
 		'Get the API key from https://trello.com/1/appKey/generate\n' + \
 		'Note: The secret is *not* the token.\n\n' + \
+		\
 		'Get the token from https://trello.com/1/authorize?' + \
-		'response_type=token&key=YOUR_API_KEY_HERE&scope=read,write' + \
-		'&expiration=never'
+		'response_type=token&scope=read,write' + \
+		'&expiration=never&key=API_KEY_HERE\n\n' + \
+		\
+		'Get your board ids from https://trello.com' + \
+		'/1/members/me/boards?fields=name&key=API_KEY_HERE' + \
+		'&token=TOKEN_HERE\n\n' + \
+		\
+		'Using the id from above grab the list id from ' + \
+		'https://trello.com/1/boards/BOARD_ID_HERE/lists?' + \
+		'fields=name&key=API_KEY_HERE&token=TOKEN_HERE\n\n'
 
     resource_links = [
         ('Bug Tracker', 'https://github.com/damianzaremba/sentry-trello/issues'),
