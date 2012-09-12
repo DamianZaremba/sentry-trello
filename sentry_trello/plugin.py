@@ -59,7 +59,7 @@ class TrelloCard(IssuePlugin):
     def can_enable_for_projects(self):
         return True
 
-    def is_setup(self, project):
+    def is_configured(self, project):
         return (
             all((self.get_option(key, project)
                 for key in ('key', 'token', 'board_list'))
@@ -67,9 +67,6 @@ class TrelloCard(IssuePlugin):
         )
 
     def create_issue(self, request, group, form_data, **kwargs):
-        if not self.is_setup(group.project):
-            return
-
         title = '%s: %s' % (group.get_level_display().upper(),
                             group.error().split('\n')[0])
 
