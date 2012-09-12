@@ -22,11 +22,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Sentry-Trello.  If not, see <http://www.gnu.org/licenses/>.
 '''
+import requests
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from sentry.conf import settings
-from sentry.plugins import Plugin
+from sentry.plugins.bases.issue import IssuePlugin
 
 from trello import TrelloApi
 import sentry_trello
@@ -36,11 +37,12 @@ class TrelloSettingsForm(forms.Form):
     token = forms.CharField(help_text=_('Trello API Token'))
     board_list = forms.CharField(help_text=_('ID of the list to add a card to'))
 
-class TrelloCard(Plugin):
+class TrelloCard(IssuePlugin):
     author = 'Damian Zaremba'
     author_url = 'http://damianzaremba.co.uk'
     title = _('Trello')
-    description = 'Create Trello cards on exceptions.'
+    description = _('Create Trello cards on exceptions.')
+    slug = 'trello'
 
     resource_links = [
         (_('How do I configure this?'),
@@ -49,7 +51,7 @@ class TrelloCard(Plugin):
         (_('Source'), 'https://github.com/damianzaremba/sentry-trello'),
     ]
 
-    conf_title = _('Trello')
+    conf_title = title
     conf_key = 'trello'
 
     version = sentry_trello.VERSION
@@ -58,38 +60,62 @@ class TrelloCard(Plugin):
     def can_enable_for_projects(self):
         return True
 
-    def is_setup(self, project):
+    def is_configured(self, request, project):
         return (
             all((self.get_option(key, project)
                 for key in ('key', 'token', 'board_list'))
             )
         )
 
-    def post_process(self, group, event, is_new, is_sample, **kwargs):
-        if not is_new or not self.is_setup(event.project):
-            return
+    def get_issue_label(self, group, issue_id, **kwargs):
+        iid, iurl = issue_id.split('/', 1)
+        return 'Trello-%s' % iid
 
-        title = '%s: %s' % (event.get_level_display().upper(),
-                            event.error().split('\n')[0])
+    def get_issue_url(self, group, issue_id, **kwargs):
+        iid, iurl = issue_id.split('/', 1)
+        return iurl
 
-        link = '%s/%s/group/%d/' % (settings.URL_PREFIX, group.project.slug,
-                                    group.id)
+    def get_new_issue_title(self, **kwargs):
+        return 'Create Trello Card'
 
-        message = 'Server: %s\n\n' % event.server_name
-        message += 'Group: %s\n\n' % event.group
-        message += 'Logger: %s\n\n' % event.logger
-        message += 'Message:\n%s\n\n' % event.message
-        message += '%s\n' % link
+    def create_issue(self, request, group, form_data, **kwargs):
+        title = form_data['title']
+        description = ''
+        
+        # Lame attempt at re-formatting for markdown
+        in_stack_trace = False
+        stack_trace = ''
+        for line in form_data['description'].split("\n"):
+            if not in_stack_trace and line.strip() == '```':
+                in_stack_trace = True
+
+            elif in_stack_trace and line.strip() == '```':
+                break
+            else:
+                if in_stack_trace and \
+                line.strip() != 'Stacktrace (most recent call last):' \
+                and line.strip() != '':
+                    if line[0:2] == '  ':
+                        line = line[2:]
+                    stack_trace += '    %s' % line
+                else:
+                    description += line
+
+        description += '\n'
+        description += stack_trace
+        description += '\n'
 
         try:
-            self.make_card(title, message, event)
-        except Exception, e:
+            return self.make_card(title, description, group)
+        except requests.exceptions.RequestException, e:
             raise forms.ValidationError(
-                    _("Unable to make trello card: %s") % e)
+                _('Error adding Trello card: %s') %
+                str(e))
 
-    def make_card(self, title, message, event):
+    def make_card(self, title, message, group):
 
-        trello = TrelloApi(self.get_option('key', event.project),
-                            self.get_option('token', event.project))
-        trello.cards.new(name=title, desc=message,
-                        idList=self.get_option('board_list', event.project))
+        trello = TrelloApi(self.get_option('key', group.project),
+                            self.get_option('token', group.project))
+        card = trello.cards.new(name=title, desc=message,
+                        idList=self.get_option('board_list', group.project))
+        return '%s/%s' % (card['id'], card['url'])
