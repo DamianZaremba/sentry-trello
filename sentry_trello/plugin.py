@@ -74,11 +74,11 @@ class TrelloCard(Plugin):
         link = '%s/%s/group/%d/' % (settings.URL_PREFIX, group.project.slug,
                                     group.id)
 
-        message = 'Server: %s\n' % event.server_name
-        message += 'Group: %s\n' % event.group
-        message += 'Logger: %s\n' % event.logger
-        message += 'Message: %s\n' % event.message
-        message += '\n%s\n' % link
+        message = 'Server: %s\n\n' % event.server_name
+        message += 'Group: %s\n\n' % event.group
+        message += 'Logger: %s\n\n' % event.logger
+        message += 'Message:\n%s\n\n' % event.message
+        message += '%s\n' % link
 
         self.make_card(title, message, event)
 
