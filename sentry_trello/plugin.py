@@ -78,14 +78,12 @@ class TrelloCard(IssuePlugin):
     def get_new_issue_title(self, **kwargs):
         return 'Create Trello Card'
 
-    def create_issue(self, request, group, form_data, **kwargs):
-        title = form_data['title']
-        description = ''
-        
+    def reformat_for_markdown(self, data):
         # Lame attempt at re-formatting for markdown
         in_stack_trace = False
+        ndata = ''
         stack_trace = ''
-        for line in form_data['description'].split("\n"):
+        for line in data.split("\n"):
             if not in_stack_trace and line.strip() == '```':
                 in_stack_trace = True
 
@@ -99,11 +97,16 @@ class TrelloCard(IssuePlugin):
                         line = line[2:]
                     stack_trace += '    %s' % line
                 else:
-                    description += line
+                    ndata += line
 
-        description += '\n'
-        description += stack_trace
-        description += '\n'
+        ndata += '\n'
+        ndata += stack_trace
+        ndata += '\n'
+        return ndata
+
+    def create_issue(self, request, group, form_data, **kwargs):
+        title = form_data['title']
+        description = self.reformat_for_markdown(form_data['description'])
 
         try:
             return self.make_card(title, description, group)
