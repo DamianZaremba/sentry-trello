@@ -23,32 +23,34 @@ You should have received a copy of the GNU General Public License
 along with Sentry-Trello.  If not, see <http://www.gnu.org/licenses/>.
 '''
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from sentry.conf import settings
-from sentry.plugins import Plugin
+from sentry.plugins.bases.issue import IssuePlugin
 
 from trello import TrelloApi
 import sentry_trello
 
 class TrelloSettingsForm(forms.Form):
-    key = forms.CharField(help_text='Trello API Key')
-    token = forms.CharField(help_text='Trello API Token')
-    board_list = forms.CharField(help_text='ID of the list to add a card to')
+    key = forms.CharField(help_text=_('Trello API Key'))
+    token = forms.CharField(help_text=_('Trello API Token'))
+    board_list = forms.CharField(help_text=_('ID of the list to add a card to'))
 
-class TrelloCard(Plugin):
+class TrelloCard(IssuePlugin):
     author = 'Damian Zaremba'
     author_url = 'http://damianzaremba.co.uk'
-    title = 'Trello'
-    description = 'Create Trello cards on exceptions.'
+    title = _('Trello')
+    description = _('Create Trello cards on exceptions.')
+    slug = 'trello'
 
     resource_links = [
-        ('How do I configure this?',
-			'https://github.com/damianzaremba/sentry-trello/blob/master/HOW_TO_SETUP.md'),
-        ('Bug Tracker', 'https://github.com/damianzaremba/sentry-trello/issues'),
-        ('Source', 'https://github.com/damianzaremba/sentry-trello'),
+        (_('How do I configure this?'),
+            'https://github.com/damianzaremba/sentry-trello/blob/master/HOW_TO_SETUP.md'),
+        (_('Bug Tracker'), 'https://github.com/damianzaremba/sentry-trello/issues'),
+        (_('Source'), 'https://github.com/damianzaremba/sentry-trello'),
     ]
 
-    conf_title = 'Trello'
+    conf_title = title
     conf_key = 'trello'
 
     version = sentry_trello.VERSION
@@ -64,27 +66,32 @@ class TrelloCard(Plugin):
             )
         )
 
-    def post_process(self, group, event, is_new, is_sample, **kwargs):
-        if not is_new or not self.is_setup(event.project):
+    def create_issue(self, request, group, form_data, **kwargs):
+        if not self.is_setup(group.project):
             return
 
-        title = '%s: %s' % (event.get_level_display().upper(),
-                            event.error().split('\n')[0])
+        title = '%s: %s' % (group.get_level_display().upper(),
+                            group.error().split('\n')[0])
 
         link = '%s/%s/group/%d/' % (settings.URL_PREFIX, group.project.slug,
                                     group.id)
 
-        message = 'Server: %s\n' % event.server_name
-        message += 'Group: %s\n' % event.group
-        message += 'Logger: %s\n' % event.logger
-        message += 'Message: %s\n' % event.message
+        message = 'Server: %s\n' % group.server_name
+        message += 'Group: %s\n' % group.group
+        message += 'Logger: %s\n' % group.logger
+        message += 'Message: %s\n' % group.message
         message += '\n%s\n' % link
 
-        self.make_card(title, message, event)
+        try:
+            self.make_card(title, message, group)
+        except Exception, e:
+            raise forms.ValidationError(
+                _('Error adding Trello card: %s') %
+                str(e))
 
-    def make_card(self, title, message, event):
+    def make_card(self, title, message, group):
 
-        trello = TrelloApi(self.get_option('key', event.project),
-                            self.get_option('token', event.project))
+        trello = TrelloApi(self.get_option('key', group.project),
+                            self.get_option('token', group.project))
         trello.cards.new(name=title, desc=message,
-                        idList=self.get_option('board_list', event.project))
+                        idList=self.get_option('board_list', group.project))
