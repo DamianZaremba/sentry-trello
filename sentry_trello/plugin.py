@@ -39,7 +39,7 @@ class TrelloCard(Plugin):
     author = 'Damian Zaremba'
     author_url = 'http://damianzaremba.co.uk'
     title = 'Trello'
-    plugin_description = 'Create Trello cards on exceptions.\n\n' + \
+    description = 'Create Trello cards on exceptions.\n\n' + \
 		\
 		'Get the API key from https://trello.com/1/appKey/generate\n' + \
 		'Note: The secret is *not* the token.\n\n' + \
