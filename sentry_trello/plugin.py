@@ -44,7 +44,7 @@ class TrelloCard(Plugin):
 
     resource_links = [
         (_('How do I configure this?'),
-			'https://github.com/damianzaremba/sentry-trello/blob/master/HOW_TO_SETUP.md'),
+            'https://github.com/damianzaremba/sentry-trello/blob/master/HOW_TO_SETUP.md'),
         (_('Bug Tracker'), 'https://github.com/damianzaremba/sentry-trello/issues'),
         (_('Source'), 'https://github.com/damianzaremba/sentry-trello'),
     ]
@@ -81,7 +81,11 @@ class TrelloCard(Plugin):
         message += 'Message:\n%s\n\n' % event.message
         message += '%s\n' % link
 
-        self.make_card(title, message, event)
+        try:
+            self.make_card(title, message, event)
+        except Exception, e:
+            raise forms.ValidationError(
+                    _("Unable to make trello card: %s") % e)
 
     def make_card(self, title, message, event):
 
