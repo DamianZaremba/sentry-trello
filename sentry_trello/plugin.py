@@ -90,7 +90,7 @@ class TrelloSettingsForm(forms.Form):
         help_text = None
         required = True
         try:
-            trello = TrelloSentry(initial.git('key'), initial.git('key'))
+            trello = TrelloSentry(initial.git('key'), initial.git('token'))
             organizations = (('', ''),) + trello.organizations_to_options()
         except RequestException:
             attrs = {'disabled': 'disabled'}
