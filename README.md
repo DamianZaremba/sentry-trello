@@ -10,4 +10,4 @@ To install simple type `pip install sentry-trello`.
 
 TODO
 ----
-* Make the auth/board setup less clunky.
+* Make the auth setup less clunky.
