@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-'''
+
+"""
 Sentry-Trello
 =============
 A Sentry plugin to add cards to a Trello board.
@@ -22,8 +23,14 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with Sentry-Trello.  If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
+
 from setuptools import setup, find_packages
+
+install_requires = [
+    'sentry>=5.0.0',
+    'trello',
+]
 
 setup(
     name='sentry-trello',
@@ -35,9 +42,7 @@ setup(
     long_description=__doc__,
     license='GPL',
     packages=find_packages(exclude=['tests']),
-    install_requires=[
-        'trello',
-    ],
+    install_requires=install_requires,
     entry_points={
         'sentry.plugins': [
             'trello = sentry_trello.plugin:TrelloCard'
