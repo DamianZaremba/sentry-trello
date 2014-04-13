@@ -34,7 +34,7 @@ install_requires = [
 
 setup(
     name='sentry-trello',
-    version='1.1.5',
+    version='1.1.6',
     author='Damian Zaremba',
     author_email='damian@damianzaremba.co.uk',
     url='https://github.com/DamianZaremba/sentry-trello',
